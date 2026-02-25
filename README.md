@@ -55,25 +55,32 @@ A Node.js/Express API for Kleene Cars.
 
 3. **Set Environment Variables** in Vercel:
    - Go to your project settings → Environment Variables
-   - Add all variables from `.env.example`:
+   - **CRITICAL**: Add `DATABASE_URL` as a single connection string:
+     ```
+     postgresql://user:password@host:port/dbname
+     ```
+   - Optional: Add other environment variables:
      - `SUPABASE_URL`
      - `SUPABASE_KEY`
-     - `DB_NAME`
-     - `DB_USER`
-     - `DB_PASSWORD`
-     - `DB_HOST`
-     - `DB_PORT`
      - `NODE_ENV=production`
+
+   **Example DATABASE_URL for Supabase**:
+
+   ```
+   postgresql://postgres:[password]@[host].supabase.co:5432/postgres
+   ```
 
 4. **Deploy**:
    - Push to your main/production branch, or click "Deploy" in the Vercel dashboard
 
 ### Important Notes
 
-- Database connections must be from a static IP or allow all IPs (not recommended for production)
+- **DATABASE_URL is required for Vercel** - Use PostgreSQL connection string format
+- Connection pooling is configured automatically for Vercel serverless functions
+- The app provides a health check endpoint: `GET /api/health`
 - Vercel's serverless functions have a timeout limit (typically 10-60 seconds depending on plan)
-- Use connection pooling for better database performance
-- Environment variables are required for production deployment
+- For local development, you can use individual DB parameters (DB_HOST, DB_USER, etc.)
+- Ensure your database allows connections from Vercel's IP ranges or is on a public network
 
 ## API Endpoints
 

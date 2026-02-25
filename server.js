@@ -20,6 +20,22 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Kleene Cars API" });
 });
 
+// Health check endpoint
+app.get("/api/health", async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({ status: "healthy", database: "connected" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        status: "unhealthy",
+        database: "disconnected",
+        error: error.message,
+      });
+  }
+});
+
 // Error Handling Middleware
 app.use(require("./middleware/errorHandler"));
 
@@ -51,9 +67,4 @@ const startServer = async () => {
   }
 };
 
-// Only start server if not being imported as a module (for Vercel)
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = app;
+// Only start server if not being imported as a module
