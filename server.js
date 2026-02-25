@@ -68,3 +68,8 @@ const startServer = async () => {
 };
 
 // Only start server if not being imported as a module
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer };

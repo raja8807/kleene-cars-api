@@ -7,18 +7,18 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Import models
-db.User = require('./User')(sequelize, DataTypes);
-db.Address = require('./Address')(sequelize, DataTypes);
-db.Banner = require('./Banner')(sequelize, DataTypes);
-db.Category = require('./Category')(sequelize, DataTypes);
-db.Order = require('./Order')(sequelize, DataTypes);
-db.OrderItem = require('./OrderItem')(sequelize, DataTypes);
-db.OrderEvidence = require('./OrderEvidence')(sequelize, DataTypes);
-db.Product = require('./Product')(sequelize, DataTypes);
-db.Service = require('./Service')(sequelize, DataTypes);
-db.Vehicle = require('./Vehicle')(sequelize, DataTypes);
-db.Worker = require('./Worker')(sequelize, DataTypes);
-db.WorkerAssignment = require('./WorkerAssignment')(sequelize, DataTypes);
+db.User = require('./User')(sequelize);
+db.Address = require('./Address')(sequelize);
+db.Banner = require('./Banner')(sequelize);
+db.Category = require('./Category')(sequelize);
+db.Order = require('./Order')(sequelize);
+db.OrderItem = require('./OrderItem')(sequelize);
+db.OrderEvidence = require('./OrderEvidence')(sequelize);
+db.Product = require('./Product')(sequelize);
+db.Service = require('./Service')(sequelize);
+db.Vehicle = require('./Vehicle')(sequelize);
+db.Worker = require('./Worker')(sequelize);
+db.WorkerAssignment = require('./WorkerAssignment')(sequelize);
 
 // Associations
 // User Associations

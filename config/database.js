@@ -12,9 +12,9 @@ if (process.env.DATABASE_URL) {
       ssl:
         process.env.NODE_ENV === "production"
           ? {
-              require: true,
-              rejectUnauthorized: false,
-            }
+            require: true,
+            rejectUnauthorized: false,
+          }
           : false,
     },
     pool: {
@@ -44,3 +44,5 @@ if (process.env.DATABASE_URL) {
     },
   );
 }
+
+module.exports = sequelize;
