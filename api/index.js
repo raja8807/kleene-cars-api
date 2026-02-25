@@ -1,5 +1,8 @@
+require("pg");
+require("pg-hstore");
 const app = require("../server");
 const { sequelize } = require("../models");
+
 
 // Initialize database connection (only once for Vercel)
 let dbInitialized = false;
