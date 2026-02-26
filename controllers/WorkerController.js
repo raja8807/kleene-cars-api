@@ -1,5 +1,6 @@
 const { getSupabaseAdmin, getSupabaseClient } = require('../config/supabase');
 const { Worker } = require('../models');
+const { generateShortId } = require('../utils/idGenerator');
 
 const getWorkers = async (req, res) => {
     try {
@@ -18,10 +19,10 @@ const createWorker = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
 
-    const { name, email, phone, experience, password } = req.body;
+    const { name, email, phone, experience, password, id_proof_url } = req.body;
 
-    if (!email || !name) {
-        return res.status(400).json({ success: false, message: "Name and Email are required." });
+    if (!email || !name || !password) {
+        return res.status(400).json({ success: false, message: "Name, Email and Password are required." });
     }
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -31,7 +32,7 @@ const createWorker = async (req, res) => {
         // 1. Create Supabase Auth User
         const { data, error } = await supabaseAdmin.auth.admin.createUser({
             email,
-            password: password || "test@123",
+            password: password || "worker@123",
             email_confirm: true,
             user_metadata: {
                 role: "worker",
@@ -45,10 +46,12 @@ const createWorker = async (req, res) => {
         // 2. Insert into Workers Table
         const newWorker = await Worker.create({
             auth_user_id: authUser.id,
+            worker_id: generateShortId('WKR'),
             name,
             email,
             phone,
             experience,
+            id_proof_url,
             status: "Active",
             rating: 0,
             assigned_orders_count: 0

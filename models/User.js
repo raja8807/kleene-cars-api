@@ -29,6 +29,10 @@ module.exports = (sequelize) => {
             defaultValue: 'customer',
             allowNull: true
         },
+        email: {
+            type: DataTypes.TEXT,
+            // allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,

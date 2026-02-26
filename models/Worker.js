@@ -8,6 +8,11 @@ module.exports = (sequelize) => {
             primaryKey: true,
             allowNull: false
         },
+        worker_id: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            unique: true
+        },
         auth_user_id: {
             type: DataTypes.UUID,
             allowNull: true,
@@ -58,6 +63,10 @@ module.exports = (sequelize) => {
         },
         longitude: {
             type: DataTypes.NUMERIC,
+            allowNull: true
+        },
+        id_proof_url: {
+            type: DataTypes.TEXT,
             allowNull: true
         }
     }, {

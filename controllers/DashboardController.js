@@ -4,19 +4,13 @@ const { Op } = Sequelize;
 const getDashboardStats = async (req, res) => {
     try {
         // Parallelize queries
-        const [ordersCount, pendingCount, usersCount, completedOrders, recentOrders] = await Promise.all([
+        const [ordersCount, pendingCount, usersCount, completedOrders] = await Promise.all([
             Order.count(),
             Order.count({ where: { status: 'Pending' } }),
             User.count(),
             Order.findAll({
                 where: { status: 'Completed' },
                 attributes: ['total_amount', 'created_at']
-            }),
-            Order.findAll({
-                limit: 5,
-                order: [['created_at', 'DESC']],
-                attributes: ['id', 'status', 'total_amount', 'created_at'],
-                include: [{ model: User, attributes: ['full_name'] }]
             })
         ]);
 
@@ -54,7 +48,6 @@ const getDashboardStats = async (req, res) => {
                 pendingOrders: pendingCount
             },
             revenueData,
-            recentOrders
         });
 
     } catch (error) {
