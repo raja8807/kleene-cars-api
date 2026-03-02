@@ -1,12 +1,47 @@
 const { getSupabaseAdmin, getSupabaseClient } = require('../config/supabase');
-const { Worker } = require('../models');
+const { Worker, WorkerAssignment, Order } = require('../models');
 const { generateShortId } = require('../utils/idGenerator');
+const { Op } = require('sequelize');
 
 const getWorkers = async (req, res) => {
     try {
+        const { date, time, status } = req.query;
+        const where = {};
+        if (status) {
+            where.status = status;
+        }
+
         const workers = await Worker.findAll({
+            where,
+            include: [
+                {
+                    model: WorkerAssignment,
+                    include: [
+                        {
+                            model: Order,
+                            attributes: ['id', 'scheduled_date', 'scheduled_time', 'status'],
+                        }
+                    ]
+                }
+            ],
             order: [['created_at', 'DESC']]
         });
+
+        if (date && time) {
+            const results = workers.map(worker => {
+                const isBusy = worker.WorkerAssignments?.some(wa =>
+                    wa.Order?.scheduled_date === date &&
+                    wa.Order?.scheduled_time === time &&
+                    wa.Order?.status !== 'Cancelled'
+                );
+
+                const workerJson = worker.toJSON();
+                workerJson.is_busy = isBusy;
+                return workerJson;
+            });
+            return res.status(200).json(results);
+        }
+
         res.status(200).json(workers);
     } catch (error) {
         console.error('Error fetching workers:', error);
@@ -83,7 +118,33 @@ const createWorker = async (req, res) => {
     }
 };
 
+const updateWorker = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const worker = await Worker.findByPk(id);
+
+        if (!worker) {
+            return res.status(404).json({ success: false, message: "Worker not found" });
+        }
+
+        await worker.update(req.body);
+
+        return res.status(200).json({
+            success: true,
+            message: "Worker updated successfully",
+            worker
+        });
+    } catch (error) {
+        console.error("Error updating worker:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Failed to update worker record."
+        });
+    }
+};
+
 module.exports = {
     getWorkers,
-    createWorker
+    createWorker,
+    updateWorker
 };

@@ -45,6 +45,8 @@ db.Address.hasMany(db.Order, { foreignKey: 'address_id' });
 db.Order.hasMany(db.OrderItem, { foreignKey: 'order_id' });
 db.OrderItem.belongsTo(db.Order, { foreignKey: 'order_id' });
 
+db.OrderItem.belongsTo(db.Service, { foreignKey: 'item_id', as: 'ServiceDetail' });
+
 db.Order.hasMany(db.OrderEvidence, { foreignKey: 'order_id' });
 db.OrderEvidence.belongsTo(db.Order, { foreignKey: 'order_id' });
 

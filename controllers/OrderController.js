@@ -7,15 +7,19 @@ const {
   WorkerAssignment,
   OrderEvidence,
   Worker,
+  Service,
 } = require("../models");
 
 const getOrders = async (req, res) => {
   try {
-    const { user_id, page = 1, limit = 10 } = req.query;
+    const { user_id, status, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
     const where = {};
     if (user_id) {
       where.user_id = user_id;
+    }
+    if (status && status !== "All Orders") {
+      where.status = status;
     }
 
     const { count, rows: orders } = await Order.findAndCountAll({
@@ -37,7 +41,29 @@ const getOrders = async (req, res) => {
             "latitude",
           ],
         },
-        { model: OrderItem, attributes: ["name", "price", "item_type"] },
+        {
+          model: OrderItem,
+          attributes: [
+            "name",
+            "price",
+            "item_type",
+            "water_available",
+            "electricity_available",
+          ],
+          include: [
+            {
+              model: Service,
+              as: "ServiceDetail",
+              attributes: [
+                "water_required",
+                "electricity_required",
+                "water_price",
+                "electricity_price",
+                "discount_price",
+              ],
+            },
+          ],
+        },
         {
           model: WorkerAssignment,
           include: [{ model: Worker }],
@@ -82,7 +108,29 @@ const getOrderById = async (req, res) => {
           model: Address,
           attributes: ["house", "street", "area", "city", "pincode"],
         },
-        { model: OrderItem, attributes: ["name", "price", "item_type"] },
+        {
+          model: OrderItem,
+          attributes: [
+            "name",
+            "price",
+            "item_type",
+            "water_available",
+            "electricity_available",
+          ],
+          include: [
+            {
+              model: Service,
+              as: "ServiceDetail",
+              attributes: [
+                "water_required",
+                "electricity_required",
+                "water_price",
+                "electricity_price",
+                "discount_price",
+              ],
+            },
+          ],
+        },
         {
           model: WorkerAssignment,
           include: [{ model: Worker }],
@@ -146,7 +194,29 @@ const updateOrder = async (req, res) => {
             model: Address,
             attributes: ["house", "street", "area", "city", "pincode"],
           },
-          { model: OrderItem, attributes: ["name", "price", "item_type"] },
+          {
+            model: OrderItem,
+            attributes: [
+              "name",
+              "price",
+              "item_type",
+              "water_available",
+              "electricity_available",
+            ],
+            include: [
+              {
+                model: Service,
+                as: "ServiceDetail",
+                attributes: [
+                  "water_required",
+                  "electricity_required",
+                  "water_price",
+                  "electricity_price",
+                  "discount_price",
+                ],
+              },
+            ],
+          },
           {
             model: WorkerAssignment,
             include: [{ model: Worker }],

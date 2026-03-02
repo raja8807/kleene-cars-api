@@ -40,6 +40,14 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        water_available: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
+        },
+        electricity_available: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
