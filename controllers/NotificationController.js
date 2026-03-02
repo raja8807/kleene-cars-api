@@ -1,8 +1,14 @@
-const { Expo } = require('expo-server-sdk');
 const { User } = require('../models');
 
-// Create a new Expo SDK client
-let expo = new Expo();
+// Helper to get Expo client lazily due to ESM require issues
+let expo;
+async function getExpoClient() {
+    if (!expo) {
+        const { Expo } = await import('expo-server-sdk');
+        expo = new Expo();
+    }
+    return expo;
+}
 
 exports.sendNotification = async (req, res) => {
     try {
@@ -30,7 +36,8 @@ exports.sendNotification = async (req, res) => {
         }
 
         // Check that all your push tokens appear to be valid Expo push tokens
-        if (!Expo.isExpoPushToken(pushToken)) {
+        const { Expo: ExpoClass } = await import('expo-server-sdk');
+        if (!ExpoClass.isExpoPushToken(pushToken)) {
             return res.status(400).json({ message: `Push token ${pushToken} is not a valid Expo push token` });
         }
 
@@ -44,12 +51,13 @@ exports.sendNotification = async (req, res) => {
         }];
 
         // Send the notification
-        let chunks = expo.chunkPushNotifications(messages);
+        const expoClient = await getExpoClient();
+        let chunks = expoClient.chunkPushNotifications(messages);
         let tickets = [];
 
         for (let chunk of chunks) {
             try {
-                let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+                let ticketChunk = await expoClient.sendPushNotificationsAsync(chunk);
                 tickets.push(...ticketChunk);
             } catch (error) {
                 console.error('Error sending notification chunk:', error);
