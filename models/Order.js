@@ -82,6 +82,14 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         // allowNull: true,
       },
+      updated_by: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "auth.users",
+          key: "id",
+        },
+      },
     },
     {
       tableName: "orders",

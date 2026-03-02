@@ -8,17 +8,29 @@ const {
   OrderEvidence,
   Worker,
   Service,
+  Sequelize
 } = require("../models");
+const { Op } = Sequelize;
 
 const getOrders = async (req, res) => {
   try {
     const { user_id, status, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
     const where = {};
+
+    // Role-based filtering for sub-admins
+    if (req.user && req.user.role === 'sub-admin') {
+      where[Op.or] = [
+        { status: 'Booked' },
+        { updated_by: req.user.id }
+      ];
+    }
+
     if (user_id) {
       where.user_id = user_id;
     }
     if (status && status !== "All Orders") {
+      // If sub-admin, respect their existing filter but status takes precedence
       where.status = status;
     }
 
@@ -182,6 +194,7 @@ const updateOrder = async (req, res) => {
       // 3. Update Order Status (Always reset to 'Worker Assigned' on re-assignment)
       await order.update({
         status: "Worker Assigned",
+        updated_by: req.user?.id
       });
 
       // Fetch the updated order with inclusions to return to frontend
@@ -234,12 +247,18 @@ const updateOrder = async (req, res) => {
 
     // Update status or other fields
     if (status) {
-      await order.update({ status });
+      await order.update({
+        status,
+        updated_by: req.user?.id
+      });
       return res.status(200).json(order);
     }
 
     // Generic update
-    await order.update(otherUpdates);
+    await order.update({
+      ...otherUpdates,
+      updated_by: req.user?.id
+    });
     res.status(200).json(order);
   } catch (error) {
     console.error("Error updating order:", error);

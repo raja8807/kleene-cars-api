@@ -19,6 +19,7 @@ db.Service = require('./Service')(sequelize);
 db.Vehicle = require('./Vehicle')(sequelize);
 db.Worker = require('./Worker')(sequelize);
 db.WorkerAssignment = require('./WorkerAssignment')(sequelize);
+db.SubAdmin = require('./SubAdmin')(sequelize);
 
 // Associations
 // User Associations

@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const OrderController = require('../controllers/OrderController');
 
-router.get('/', OrderController.getOrders);
-router.get('/:id', OrderController.getOrderById);
-router.put('/:id', OrderController.updateOrder);
-router.patch('/:id', OrderController.updateOrder); // Support PATCH as well
+const authenticate = require('../middleware/authMiddleware');
+
+router.get('/', authenticate, OrderController.getOrders);
+router.get('/:id', authenticate, OrderController.getOrderById);
+router.put('/:id', authenticate, OrderController.updateOrder);
+router.patch('/:id', authenticate, OrderController.updateOrder); // Support PATCH as well
 
 module.exports = router;

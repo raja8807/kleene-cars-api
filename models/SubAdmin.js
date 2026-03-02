@@ -1,14 +1,26 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    const User = sequelize.define('User', {
+    const SubAdmin = sequelize.define('SubAdmin', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
             allowNull: false
         },
-        full_name: {
+        auth_user_id: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: {
+                model: 'auth.users',
+                key: 'id'
+            }
+        },
+        name: {
+            type: DataTypes.TEXT,
+            allowNull: false
+        },
+        email: {
             type: DataTypes.TEXT,
             allowNull: true
         },
@@ -16,43 +28,27 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        gender: {
+        status: {
             type: DataTypes.TEXT,
+            defaultValue: 'Active',
             allowNull: true
-        },
-        avatar_url: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-        role: {
-            type: DataTypes.TEXT,
-            defaultValue: 'customer',
-            allowNull: true
-        },
-        email: {
-            type: DataTypes.TEXT,
-            // allowNull: true
         },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
-            allowNull: false
+            allowNull: true
         },
         updated_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
-            allowNull: false
-        },
-        push_token: {
-            type: DataTypes.TEXT,
             allowNull: true
         }
     }, {
-        tableName: 'users',
+        tableName: 'sub_admins',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at'
     });
 
-    return User;
+    return SubAdmin;
 };

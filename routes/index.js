@@ -1,17 +1,23 @@
 const express = require('express');
 const router = express.Router();
 
-router.use('/auth', require('./authRoutes'));
-router.use('/customers', require('./customerRoutes'));
-router.use('/workers', require('./workerRoutes'));
-router.use('/catalog/products', require('./productRoutes'));
-router.use('/catalog/services', require('./serviceRoutes'));
-router.use('/catalog/banners', require('./bannerRoutes'));
-router.use('/catalog/categories', require('./categoryRoutes'));
-router.use('/orders', require('./orderRoutes'));
-router.use('/dashboard', require('./dashboardRoutes'));
+const authenticate = require('../middleware/authMiddleware');
+const { restrictToAdminOnly, isAdmin } = require('../middleware/roleMiddleware');
 
-// Admin route alias if needed, though create-worker is in workers
-// router.use('/admin', require('./adminRoutes')); 
+router.use('/auth', require('./authRoutes'));
+router.use('/customers', authenticate, require('./customerRoutes'));
+router.use('/workers', authenticate, require('./workerRoutes'));
+
+// Catalog is restricted to main admins only
+router.use('/catalog/products', authenticate, restrictToAdminOnly, require('./productRoutes'));
+router.use('/catalog/services', authenticate, restrictToAdminOnly, require('./serviceRoutes'));
+router.use('/catalog/banners', authenticate, restrictToAdminOnly, require('./bannerRoutes'));
+router.use('/catalog/categories', authenticate, restrictToAdminOnly, require('./categoryRoutes'));
+
+router.use('/orders', require('./orderRoutes'));
+router.use('/dashboard', authenticate, require('./dashboardRoutes'));
+
+router.use('/admins', authenticate, isAdmin, require('./adminRoutes'));
+router.use('/notifications', authenticate, require('./notificationRoutes'));
 
 module.exports = router;
