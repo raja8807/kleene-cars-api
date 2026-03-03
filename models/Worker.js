@@ -68,6 +68,10 @@ module.exports = (sequelize) => {
         id_proof_url: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        push_token: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     }, {
         tableName: 'workers',

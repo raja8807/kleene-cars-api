@@ -18,6 +18,6 @@ router.use('/orders', require('./orderRoutes'));
 router.use('/dashboard', authenticate, require('./dashboardRoutes'));
 
 router.use('/admins', authenticate, isAdmin, require('./adminRoutes'));
-router.use('/notifications', authenticate, require('./notificationRoutes'));
+router.use('/notifications', require('./notificationRoutes'));
 
 module.exports = router;

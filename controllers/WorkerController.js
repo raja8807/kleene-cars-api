@@ -143,8 +143,72 @@ const updateWorker = async (req, res) => {
     }
 };
 
+const updateWorkerPushToken = async (req, res) => {
+    try {
+
+        console.log('ok');
+
+        const { pushToken } = req.body;
+        const authUserId = req.user.id;
+
+        console.log(pushToken);
+
+
+        if (!pushToken) {
+            return res.status(400).json({ message: 'Push token is required' });
+        }
+
+        const worker = await Worker.findOne({ where: { auth_user_id: authUserId } });
+        if (!worker) {
+            return res.status(404).json({ message: 'Worker not found' });
+        }
+
+        const result = await worker.update({ push_token: pushToken });
+
+        console.log(result);
+
+        res.status(200).json({
+            message: 'Push token updated successfully'
+        });
+
+
+    } catch (error) {
+        console.error('Error in updateWorkerPushToken:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+const updateWorkerStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const authUserId = req.user.id;
+
+        if (!status) {
+            return res.status(400).json({ message: 'Status is required' });
+        }
+
+        const worker = await Worker.findOne({ where: { auth_user_id: authUserId } });
+        if (!worker) {
+            return res.status(404).json({ message: 'Worker not found' });
+        }
+
+        await worker.update({ status });
+
+        res.status(200).json({
+            message: `Status updated to ${status} successfully`,
+            status: worker.status
+        });
+    } catch (error) {
+        console.error('Error in updateWorkerStatus:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
 module.exports = {
     getWorkers,
     createWorker,
-    updateWorker
+    updateWorker,
+    updateWorkerPushToken,
+    updateWorkerStatus
 };
+

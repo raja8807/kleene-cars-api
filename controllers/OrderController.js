@@ -11,6 +11,8 @@ const {
   Sequelize
 } = require("../models");
 const { Op } = Sequelize;
+const { sendOrderUpdateNotification } = require('./CustomerNotificationController');
+const { sendWorkerOrderUpdateNotification } = require("./WorkerNotificationController");
 
 const getOrders = async (req, res) => {
   try {
@@ -80,6 +82,7 @@ const getOrders = async (req, res) => {
           model: WorkerAssignment,
           include: [{ model: Worker }],
         },
+        { model: OrderEvidence },
       ],
       order: [["created_at", "DESC"]],
     });
@@ -147,6 +150,7 @@ const getOrderById = async (req, res) => {
           model: WorkerAssignment,
           include: [{ model: Worker }],
         },
+        { model: OrderEvidence },
       ],
     });
 
@@ -197,6 +201,15 @@ const updateOrder = async (req, res) => {
         updated_by: req.user?.id
       });
 
+      // 4. Send push notification (fire-and-forget)
+      sendOrderUpdateNotification(order.user_id, id, 'Worker Assigned').catch(err =>
+        console.error('Notification error (worker assigned):', err)
+      );
+
+      sendWorkerOrderUpdateNotification(worker_id, id).catch(err =>
+        console.error('Notification error (worker assigned):', err)
+      );
+
       // Fetch the updated order with inclusions to return to frontend
       const updatedOrder = await Order.findOne({
         where: { id },
@@ -234,6 +247,7 @@ const updateOrder = async (req, res) => {
             model: WorkerAssignment,
             include: [{ model: Worker }],
           },
+          { model: OrderEvidence },
         ],
       });
 
@@ -251,6 +265,12 @@ const updateOrder = async (req, res) => {
         status,
         updated_by: req.user?.id
       });
+
+      // Send push notification (fire-and-forget)
+      sendOrderUpdateNotification(order.user_id, id, status).catch(err =>
+        console.error('Notification error (status update):', err)
+      );
+
       return res.status(200).json(order);
     }
 
