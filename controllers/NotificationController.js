@@ -141,16 +141,15 @@ exports.updatePushToken = async (req, res) => {
         const { pushToken } = req.body;
         const userId = req.user.id; // From authMiddleware
 
-        if (!pushToken) {
-            return res.status(400).json({ message: 'Push token is required' });
-        }
+        // If pushToken is provided as null or empty, we allow it (for logout)
+        const finalToken = pushToken === undefined ? undefined : pushToken;
 
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        await user.update({ push_token: pushToken });
+        await user.update({ push_token: finalToken });
 
         res.status(200).json({
             message: 'Push token updated successfully'

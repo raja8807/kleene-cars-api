@@ -20,6 +20,7 @@ db.Vehicle = require('./Vehicle')(sequelize);
 db.Worker = require('./Worker')(sequelize);
 db.WorkerAssignment = require('./WorkerAssignment')(sequelize);
 db.SubAdmin = require('./SubAdmin')(sequelize);
+db.WorkerRating = require('./WorkerRating')(sequelize);
 
 // Associations
 // User Associations
@@ -31,6 +32,9 @@ db.Vehicle.belongsTo(db.User, { foreignKey: 'user_id' });
 
 db.User.hasMany(db.Order, { foreignKey: 'user_id' });
 db.Order.belongsTo(db.User, { foreignKey: 'user_id' });
+
+db.User.hasMany(db.WorkerRating, { foreignKey: 'user_id' });
+db.WorkerRating.belongsTo(db.User, { foreignKey: 'user_id' });
 
 // Category Associations
 db.Category.hasMany(db.Service, { foreignKey: 'category_id' });
@@ -54,9 +58,15 @@ db.OrderEvidence.belongsTo(db.Order, { foreignKey: 'order_id' });
 db.Order.hasMany(db.WorkerAssignment, { foreignKey: 'order_id' });
 db.WorkerAssignment.belongsTo(db.Order, { foreignKey: 'order_id' });
 
+db.Order.hasOne(db.WorkerRating, { foreignKey: 'order_id' });
+db.WorkerRating.belongsTo(db.Order, { foreignKey: 'order_id' });
+
 // Worker Associations
 db.Worker.hasMany(db.WorkerAssignment, { foreignKey: 'worker_id' });
 db.WorkerAssignment.belongsTo(db.Worker, { foreignKey: 'worker_id' });
+
+db.Worker.hasMany(db.WorkerRating, { foreignKey: 'worker_id' });
+db.WorkerRating.belongsTo(db.Worker, { foreignKey: 'worker_id' });
 
 
 module.exports = db;

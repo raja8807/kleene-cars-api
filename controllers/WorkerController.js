@@ -151,19 +151,15 @@ const updateWorkerPushToken = async (req, res) => {
         const { pushToken } = req.body;
         const authUserId = req.user.id;
 
-        console.log(pushToken);
-
-
-        if (!pushToken) {
-            return res.status(400).json({ message: 'Push token is required' });
-        }
+        // Allow null/empty token for logout
+        const finalToken = pushToken === undefined ? undefined : pushToken;
 
         const worker = await Worker.findOne({ where: { auth_user_id: authUserId } });
         if (!worker) {
             return res.status(404).json({ message: 'Worker not found' });
         }
 
-        const result = await worker.update({ push_token: pushToken });
+        const result = await worker.update({ push_token: finalToken });
 
         console.log(result);
 
