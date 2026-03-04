@@ -5,20 +5,53 @@ const sendOtp = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    const supabaseAdmin = getSupabaseAdmin();
-
-    const { data: linkData, error: linkErr } =
-      await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email: `${phone}@kleenecars.app`,
-      });
-
-
-
     return res.status(200).json({
-      success: !linkErr,
-      otp: linkData.properties.email_otp,
-      error: linkErr,
+      success: true,
+      otp: "123456",
+      error: null,
+    });
+  } catch (err) {
+    console.log("Error: ", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (otp === "123456") {
+      const supabaseAdmin = getSupabaseAdmin();
+      const email = `${phone}@kleenecars.app`;
+
+      // ensure user exists
+      await supabaseAdmin.auth.admin
+        .createUser({
+          email,
+          email_confirm: true,
+          app_metadata: {
+            role: "customer",
+          },
+        })
+        .catch((err) => {
+          console.log(err);
+        }); // ignore error if user already exists
+
+      const { data: linkData, error: linkErr } =
+        await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email,
+        });
+
+      return res.status(200).json({
+        success: !linkErr,
+        token: linkData.properties.hashed_token,
+        error: linkErr,
+      });
+    }
+
+    return res.status(401).json({
+      error: "Invalid Otp",
     });
   } catch (err) {
     console.log("Error: ", err.message);
@@ -34,34 +67,48 @@ const getProfile = async (req, res) => {
       error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user || (user?.user_metadata?.role !== "admin" && user?.user_metadata?.role !== "sub-admin")) {
+    if (
+      authError ||
+      !user ||
+      (user?.user_metadata?.role !== "admin" &&
+        user?.user_metadata?.role !== "sub-admin")
+    ) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { role } = user.user_metadata;
     let profile;
 
-    if (role === 'sub-admin') {
+    if (role === "sub-admin") {
       profile = await SubAdmin.findOne({
         where: { auth_user_id: user.id },
         attributes: ["name", "phone", "email", "id", "status"],
       });
 
       if (profile) {
-        if (profile.status !== 'Active') {
-          return res.status(401).json({ error: "Unauthorized: Account is inactive" });
+        if (profile.status !== "Active") {
+          return res
+            .status(401)
+            .json({ error: "Unauthorized: Account is inactive" });
         }
         // Map 'name' to 'full_name' for frontend consistency if needed
         const profileJson = profile.toJSON();
         profileJson.full_name = profileJson.name;
-        profileJson.role = 'sub-admin';
+        profileJson.role = "sub-admin";
         return res.status(200).json(profileJson);
       }
     } else {
       // Fetch profile from our database using Sequelize
       profile = await User.findOne({
         where: { id: user.id },
-        attributes: ["role", "full_name", "phone", "gender", "avatar_url", "id"],
+        attributes: [
+          "role",
+          "full_name",
+          "phone",
+          "gender",
+          "avatar_url",
+          "id",
+        ],
       });
 
       if (profile) {
@@ -85,4 +132,5 @@ const getProfile = async (req, res) => {
 module.exports = {
   getProfile,
   sendOtp,
+  verifyOtp,
 };
