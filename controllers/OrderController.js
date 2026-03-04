@@ -8,6 +8,7 @@ const {
   OrderEvidence,
   Worker,
   Service,
+  Product,
   Sequelize
 } = require("../models");
 const { Op } = Sequelize;
@@ -38,6 +39,7 @@ const getOrders = async (req, res) => {
 
     const { count, rows: orders } = await Order.findAndCountAll({
       where,
+      distinct: true,
       limit: parseInt(limit),
       offset: parseInt(offset),
       include: [
@@ -63,6 +65,7 @@ const getOrders = async (req, res) => {
             "item_type",
             "water_available",
             "electricity_available",
+            "quantity"
           ],
           include: [
             {
@@ -76,6 +79,11 @@ const getOrders = async (req, res) => {
                 "discount_price",
               ],
             },
+            {
+              model: Product,
+              as: "ProductDetail",
+              attributes: ["name", "price", "image", "description"],
+            },
           ],
         },
         {
@@ -86,6 +94,9 @@ const getOrders = async (req, res) => {
       ],
       order: [["created_at", "DESC"]],
     });
+
+
+
 
     const formattedOrders = orders.map((order) => {
       const orderJson = order.toJSON();
@@ -144,6 +155,11 @@ const getOrderById = async (req, res) => {
                 "discount_price",
               ],
             },
+            {
+              model: Product,
+              as: "ProductDetail",
+              attributes: ["name", "price", "image", "description"],
+            }
           ],
         },
         {
@@ -240,6 +256,11 @@ const updateOrder = async (req, res) => {
                   "electricity_price",
                   "discount_price",
                 ],
+              },
+              {
+                model: Product,
+                as: "ProductDetail",
+                attributes: ["name", "price", "image", "description"],
               },
             ],
           },

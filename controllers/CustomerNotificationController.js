@@ -8,6 +8,7 @@ const statusMap = {
     'Worker Reached Location': { title: 'Worker Reached Location', body: 'Your worker has reached the location' },
     'Service Ongoing': { title: 'Service Ongoing', body: 'Your service is currently in progress' },
     'Completed': { title: 'Order Completed', body: 'Your order has been completed successfully' },
+    'Payment Received': { title: 'Payment Received', body: 'Thank you! We have received your payment for your order.' },
 };
 
 exports.sendOrderUpdateNotification = async (userId, orderId, status) => {

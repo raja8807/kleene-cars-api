@@ -20,5 +20,7 @@ router.use('/dashboard', authenticate, require('./dashboardRoutes'));
 router.use('/admins', authenticate, isAdmin, require('./adminRoutes'));
 router.use('/notifications', require('./notificationRoutes'));
 router.use('/ratings', require('./workerRatingRoutes'));
+router.use('/payments', require('./paymentRoutes'));
+
 
 module.exports = router;

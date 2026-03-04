@@ -1,4 +1,5 @@
 const { WorkerRating, Worker, sequelize } = require('../models');
+const { sendWorkerRatingNotification } = require('./WorkerNotificationController');
 
 exports.createRating = async (req, res) => {
     const t = await sequelize.transaction();
@@ -38,6 +39,11 @@ exports.createRating = async (req, res) => {
         );
 
         await t.commit();
+
+        // Send push notification to worker (fire-and-forget)
+        sendWorkerRatingNotification(worker_id, rating, order_id).catch(err =>
+            console.error('Notification error (worker rated):', err)
+        );
 
         res.status(201).json({
             message: 'Rating submitted successfully',

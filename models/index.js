@@ -21,6 +21,9 @@ db.Worker = require('./Worker')(sequelize);
 db.WorkerAssignment = require('./WorkerAssignment')(sequelize);
 db.SubAdmin = require('./SubAdmin')(sequelize);
 db.WorkerRating = require('./WorkerRating')(sequelize);
+db.Payment = require('./Payment')(sequelize);
+db.PaymentItem = require('./PaymentItem')(sequelize);
+
 
 // Associations
 // User Associations
@@ -51,6 +54,7 @@ db.Order.hasMany(db.OrderItem, { foreignKey: 'order_id' });
 db.OrderItem.belongsTo(db.Order, { foreignKey: 'order_id' });
 
 db.OrderItem.belongsTo(db.Service, { foreignKey: 'item_id', as: 'ServiceDetail' });
+db.OrderItem.belongsTo(db.Product, { foreignKey: 'item_id', as: 'ProductDetail' });
 
 db.Order.hasMany(db.OrderEvidence, { foreignKey: 'order_id' });
 db.OrderEvidence.belongsTo(db.Order, { foreignKey: 'order_id' });
@@ -67,6 +71,22 @@ db.WorkerAssignment.belongsTo(db.Worker, { foreignKey: 'worker_id' });
 
 db.Worker.hasMany(db.WorkerRating, { foreignKey: 'worker_id' });
 db.WorkerRating.belongsTo(db.Worker, { foreignKey: 'worker_id' });
+
+// Payment Associations
+db.Order.hasMany(db.Payment, { foreignKey: 'order_id' });
+db.Payment.belongsTo(db.Order, { foreignKey: 'order_id' });
+
+db.Worker.hasMany(db.Payment, { foreignKey: 'worker_id' });
+db.Payment.belongsTo(db.Worker, { foreignKey: 'worker_id' });
+
+db.User.hasMany(db.Payment, { foreignKey: 'user_id' });
+db.Payment.belongsTo(db.User, { foreignKey: 'user_id' });
+
+db.Payment.hasMany(db.PaymentItem, { foreignKey: 'payment_id' });
+db.PaymentItem.belongsTo(db.Payment, { foreignKey: 'payment_id' });
+
+db.PaymentItem.belongsTo(db.Service, { foreignKey: 'service_id' });
+db.PaymentItem.belongsTo(db.Product, { foreignKey: 'product_id' });
 
 
 module.exports = db;
