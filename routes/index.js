@@ -5,7 +5,7 @@ const authenticate = require('../middleware/authMiddleware');
 const { restrictToAdminOnly, isAdmin } = require('../middleware/roleMiddleware');
 
 router.use('/auth', require('./authRoutes'));
-router.use('/customers', authenticate, require('./customerRoutes'));
+router.use('/customers', require('./customerRoutes'));
 router.use('/workers', authenticate, require('./workerRoutes'));
 
 // Catalog is restricted to main admins only

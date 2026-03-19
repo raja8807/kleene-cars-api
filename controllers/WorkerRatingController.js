@@ -20,25 +20,6 @@ exports.createRating = async (req, res) => {
             comment,
         }, { transaction: t });
 
-        // 2. Calculate new average rating for the worker
-        const ratings = await WorkerRating.findAll({
-            where: { worker_id },
-            transaction: t,
-        });
-
-        const totalRating = ratings.reduce((sum, r) => sum + parseFloat(r.rating), 0);
-        const averageRating = (totalRating / ratings.length).toFixed(1);
-
-        // 3. Update the worker's average rating
-        await Worker.update(
-            { rating: averageRating },
-            {
-                where: { id: worker_id },
-                transaction: t
-            }
-        );
-
-        await t.commit();
 
         // Send push notification to worker (fire-and-forget)
         sendWorkerRatingNotification(worker_id, rating, order_id).catch(err =>
@@ -48,7 +29,7 @@ exports.createRating = async (req, res) => {
         res.status(201).json({
             message: 'Rating submitted successfully',
             rating: newRating,
-            newAverageRating: averageRating
+
         });
 
     } catch (error) {
@@ -64,16 +45,10 @@ exports.createRating = async (req, res) => {
 exports.getRatingByOrder = async (req, res) => {
     try {
 
-        console.log('ok');
-
-
         const { orderId } = req.params;
         const rating = await WorkerRating.findOne({
             where: { order_id: orderId }
         });
-
-
-
 
         res.status(200).json(rating);
     } catch (error) {

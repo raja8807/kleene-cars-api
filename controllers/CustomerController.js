@@ -11,8 +11,10 @@ const getCustomers = async (req, res) => {
             },
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']],
+            distinct: true,
         });
+
 
         res.status(200).json({
             data: customers,

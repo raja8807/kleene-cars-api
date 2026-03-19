@@ -307,8 +307,60 @@ const updateOrder = async (req, res) => {
   }
 };
 
+
+const assignWorker = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { worker_id } = req.body;
+    const order = await Order.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    await WorkerAssignment.destroy({
+      where: { order_id: id }
+    });
+
+    await WorkerAssignment.create({
+      order_id: id,
+      worker_id: worker_id,
+      status: "Assigned",
+    });
+    // await order.update({
+    //   status: "Worker Assigned",
+    //   updated_by: req.user?.id
+    // });
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error assigning worker:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateWorkerAssignmentStatus = async (req, res) => {
+  try {
+    const { id, assignmentId } = req.params;
+    const { status } = req.body;
+
+    const workerAssignment = await WorkerAssignment.findByPk(assignmentId);
+    if (!workerAssignment) {
+      return res.status(404).json({ error: "Worker assignment not found" });
+    }
+    await workerAssignment.update({
+      status,
+      updated_by: req.user?.id
+    });
+    res.status(200).json(workerAssignment);
+  } catch (error) {
+    console.error("Error updating worker assignment status:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getOrderById,
   updateOrder,
+  assignWorker,
+  updateWorkerAssignmentStatus
 };

@@ -69,6 +69,10 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        photo_url: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         push_token: {
             type: DataTypes.TEXT,
             allowNull: true

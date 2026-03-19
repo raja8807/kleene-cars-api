@@ -54,7 +54,7 @@ const createWorker = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
 
-    const { name, email, phone, experience, password, id_proof_url } = req.body;
+    const { name, email, phone, experience, password, id_proof_url, photo_url, rating } = req.body;
 
     if (!email || !name || !password) {
         return res.status(400).json({ success: false, message: "Name, Email and Password are required." });
@@ -87,9 +87,11 @@ const createWorker = async (req, res) => {
             phone,
             experience,
             id_proof_url,
+            photo_url,
             status: "Active",
             rating: 0,
-            assigned_orders_count: 0
+            assigned_orders_count: 0,
+            rating
         });
 
         return res.status(200).json({

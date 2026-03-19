@@ -8,5 +8,6 @@ router.get('/', authenticate, OrderController.getOrders);
 router.get('/:id', authenticate, OrderController.getOrderById);
 router.put('/:id', authenticate, OrderController.updateOrder);
 router.patch('/:id', authenticate, OrderController.updateOrder); // Support PATCH as well
-
+router.put('/:id/assign-worker', authenticate, OrderController.assignWorker);
+router.put('/:id/:assignmentId/status', authenticate, OrderController.updateWorkerAssignmentStatus);
 module.exports = router;
