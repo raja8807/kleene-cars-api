@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const { getSupabaseClient, getSupabaseAdmin } = require("../config/supabase");
 const { User, SubAdmin } = require("../models");
 
@@ -5,11 +6,18 @@ const sendOtp = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    return res.status(200).json({
-      success: true,
-      otp: "123456",
-      error: null,
-    });
+    const otpUrl = `https://2factor.in/API/V1/${process.env.SMS_API_KEY}/SMS/+91${phone}/AUTOGEN/OTP1`;
+
+    const otpRes = await axios.get(otpUrl);
+
+    if (otpRes.data.Status === "Success") {
+      return res.status(200).json({
+        success: true,
+        error: null,
+      });
+    } else {
+      throw new Error("Something went wrong..");
+    }
   } catch (err) {
     console.log("Error: ", err.message);
     return res.status(500).json({ error: err.message });
@@ -20,7 +28,13 @@ const verifyOtp = async (req, res) => {
   try {
     const { phone, otp } = req.body;
 
-    if (otp === "123456") {
+    //
+
+    const verifyUrl = `https://2factor.in/API/V1/${process.env.SMS_API_KEY}/SMS/VERIFY3/91${phone}/${otp}`;
+
+    const verifyRes = await axios.get(verifyUrl);
+
+    if (verifyRes.data.Status === "Success") {
       const supabaseAdmin = getSupabaseAdmin();
       const email = `${phone}@kleenecars.app`;
 
