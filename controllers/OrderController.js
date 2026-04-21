@@ -9,11 +9,15 @@ const {
   Worker,
   Service,
   Product,
-  Sequelize
+  Sequelize,
 } = require("../models");
 const { Op } = Sequelize;
-const { sendOrderUpdateNotification } = require('./CustomerNotificationController');
-const { sendWorkerOrderUpdateNotification } = require("./WorkerNotificationController");
+const {
+  sendOrderUpdateNotification,
+} = require("./CustomerNotificationController");
+const {
+  sendWorkerOrderUpdateNotification,
+} = require("./WorkerNotificationController");
 
 const getOrders = async (req, res) => {
   try {
@@ -22,11 +26,8 @@ const getOrders = async (req, res) => {
     const where = {};
 
     // Role-based filtering for sub-admins
-    if (req.user && req.user.role === 'sub-admin') {
-      where[Op.or] = [
-        { status: 'Booked' },
-        { updated_by: req.user.id }
-      ];
+    if (req.user && req.user.role === "sub-admin") {
+      where[Op.or] = [{ status: "Booked" }, { updated_by: req.user.id }];
     }
 
     if (user_id) {
@@ -65,7 +66,7 @@ const getOrders = async (req, res) => {
             "item_type",
             "water_available",
             "electricity_available",
-            "quantity"
+            "quantity",
           ],
           include: [
             {
@@ -94,9 +95,6 @@ const getOrders = async (req, res) => {
       ],
       order: [["created_at", "DESC"]],
     });
-
-
-
 
     const formattedOrders = orders.map((order) => {
       const orderJson = order.toJSON();
@@ -159,7 +157,7 @@ const getOrderById = async (req, res) => {
               model: Product,
               as: "ProductDetail",
               attributes: ["name", "price", "image", "description"],
-            }
+            },
           ],
         },
         {
@@ -201,7 +199,7 @@ const updateOrder = async (req, res) => {
     if (worker_id) {
       // 1. Delete existing assignments for this order
       await WorkerAssignment.destroy({
-        where: { order_id: id }
+        where: { order_id: id },
       });
 
       // 2. Insert into worker_assignments
@@ -214,16 +212,16 @@ const updateOrder = async (req, res) => {
       // 3. Update Order Status (Always reset to 'Worker Assigned' on re-assignment)
       await order.update({
         status: "Worker Assigned",
-        updated_by: req.user?.id
+        updated_by: req.user?.id,
       });
 
       // 4. Send push notification (fire-and-forget)
-      sendOrderUpdateNotification(order.user_id, id, 'Worker Assigned').catch(err =>
-        console.error('Notification error (worker assigned):', err)
+      sendOrderUpdateNotification(order.user_id, id, "Worker Assigned").catch(
+        (err) => console.error("Notification error (worker assigned):", err),
       );
 
-      sendWorkerOrderUpdateNotification(worker_id, id).catch(err =>
-        console.error('Notification error (worker assigned):', err)
+      sendWorkerOrderUpdateNotification(worker_id, id).catch((err) =>
+        console.error("Notification error (worker assigned):", err),
       );
 
       // Fetch the updated order with inclusions to return to frontend
@@ -273,7 +271,10 @@ const updateOrder = async (req, res) => {
       });
 
       const orderJson = updatedOrder.toJSON();
-      if (orderJson.WorkerAssignments && orderJson.WorkerAssignments.length > 0) {
+      if (
+        orderJson.WorkerAssignments &&
+        orderJson.WorkerAssignments.length > 0
+      ) {
         orderJson.WorkerAssigned = orderJson.WorkerAssignments[0].Worker;
       }
 
@@ -284,12 +285,12 @@ const updateOrder = async (req, res) => {
     if (status) {
       await order.update({
         status,
-        updated_by: req.user?.id
+        updated_by: req.user?.id,
       });
 
       // Send push notification (fire-and-forget)
-      sendOrderUpdateNotification(order.user_id, id, status).catch(err =>
-        console.error('Notification error (status update):', err)
+      sendOrderUpdateNotification(order.user_id, id, status).catch((err) =>
+        console.error("Notification error (status update):", err),
       );
 
       return res.status(200).json(order);
@@ -298,7 +299,7 @@ const updateOrder = async (req, res) => {
     // Generic update
     await order.update({
       ...otherUpdates,
-      updated_by: req.user?.id
+      updated_by: req.user?.id,
     });
     res.status(200).json(order);
   } catch (error) {
@@ -306,7 +307,6 @@ const updateOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 const assignWorker = async (req, res) => {
   try {
@@ -318,7 +318,7 @@ const assignWorker = async (req, res) => {
     }
 
     await WorkerAssignment.destroy({
-      where: { order_id: id }
+      where: { order_id: id },
     });
 
     await WorkerAssignment.create({
@@ -348,7 +348,7 @@ const updateWorkerAssignmentStatus = async (req, res) => {
     }
     await workerAssignment.update({
       status,
-      updated_by: req.user?.id
+      updated_by: req.user?.id,
     });
     res.status(200).json(workerAssignment);
   } catch (error) {
@@ -362,5 +362,5 @@ module.exports = {
   getOrderById,
   updateOrder,
   assignWorker,
-  updateWorkerAssignmentStatus
+  updateWorkerAssignmentStatus,
 };
